@@ -47,16 +47,18 @@
 #include "progress.h"
 #include "rgb.h"
 
+#include <QGL>
+
 template <typename T> void Raster<T>::fill(const T& v)
 {
   if (contiguous())
     {
       std::fill(contiguous_begin(),contiguous_end(),v);
     }
-  else
+  else 
     {
       for (RowIterator row=row_begin();row!=row_end();++row)
-    std::fill((*row).begin(),(*row).end(),v);
+	std::fill((*row).begin(),(*row).end(),v);
     }
 }
 
@@ -66,8 +68,8 @@ template <typename T> const typename Raster<T>::ScalarType Raster<T>::maximum_sc
   for (ConstRowIterator row=row_begin();row!=row_end();++row)
     for (const T* it=row->begin();it!=row->end();++it)
       {
-    const ScalarType v(scalar(*it));
-    if (v>m) m=v;
+	const ScalarType v(scalar(*it));
+	if (v>m) m=v;
       }
   return m;
 }
@@ -101,7 +103,7 @@ template <> bool Raster<ushort>::write_pgmfile(const std::string& filename,Progr
       progress.step();
       for (const ushort* it=row->begin();it!=row->end();++it)
 	{
-	  const uchar p[2]={uchar((*it)>>8),uchar(*it)};
+	  const uchar p[2]={((*it)>>8),(*it)};
 	  if (m>=256)
 	    {
 	      // PGM spec is most significant byte first
@@ -129,7 +131,7 @@ template <> bool Raster<ByteRGBA>::write_ppmfile(const std::string& filename,Pro
     {
       progress.step();
       for (const ByteRGBA* it=row->begin();it!=row->end();++it)
-    out.write(reinterpret_cast<const char*>(&((*it).r)),3);
+	out.write(reinterpret_cast<const char*>(&((*it).r)),3);
     }
   out.close();
   return out.good();

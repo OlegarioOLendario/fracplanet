@@ -25,9 +25,7 @@
 
 #include "dialog_documentation.h"
 
-static const char*const text=
-#include "usage_text.h"
-;
+static const char*const text="tentar entender porque essa parte esta errada";
 
 DialogDocumentation::DialogDocumentation(QWidget* parent)
   :QDialog(parent)
@@ -37,7 +35,7 @@ DialogDocumentation::DialogDocumentation(QWidget* parent)
   setSizeGripEnabled(true);
 
   setLayout(new QVBoxLayout());
-
+  
   QTextBrowser*const browser=new QTextBrowser();
   layout()->addWidget(browser);
   browser->setText(text);
@@ -50,9 +48,9 @@ DialogDocumentation::DialogDocumentation(QWidget* parent)
   ok->setDefault(true);
 
   connect(
-      ok,SIGNAL(clicked()),
-      this,SLOT(hide())
-      );
+	  ok,SIGNAL(clicked()),
+	  this,SLOT(hide())
+	  );
 }
 
 DialogDocumentation::~DialogDocumentation()

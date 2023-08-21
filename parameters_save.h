@@ -43,12 +43,12 @@ class ParametersSave
   //! Whether to emit a single sea-level object to POV file.
   bool pov_sea_object;
 
-  bool blender_cycles_materials;
-  /* whether to generate materials for Blender Cycles renderer */
+  //! Whether to try using per-vertex-alpha in the blender output.
+  bool blender_per_vertex_alpha;
 
   //! Whether textures should include shading.
   bool texture_shaded;
-
+  
   //! Size of texture for texture save (is height; width is implicit).
   uint texture_height;
 

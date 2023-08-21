@@ -28,8 +28,8 @@
 #include "parameters_terrain.h"
 #include "triangle_mesh.h"
 
-//! This class holds all the terrain-related methods.
-/*! It's intended to be used as a "mix-in", adding terrain generating
+//! This class holds all the terrain-related methods.  
+/*! It's intended to be used as a "mix-in", adding terrain generating 
   functionality to terrain objects subclassed from simpler geometries.
   \todo Ugh!!!  This is really yucky use of multiple inheritance.  Better for these terrain types to have-a TriangleMesh.
  */
@@ -57,13 +57,15 @@ class TriangleMeshTerrain : virtual public TriangleMesh
   //! Render the mesh onto raster images (colour texture, and optionally 16-bit DEM and/or normal map).
   virtual void render_texture(Raster<ByteRGBA>&,Raster<ushort>*,Raster<ByteRGBA>*,bool shading,float ambient,const XYZ& illumination) const;
 
+  virtual void write_stl(std::ofstream& out,const ParametersSave&,const ParametersTerrain&,const std::string& mesh_name) const;
+
  protected:
 
   //! Indices of the set of triangles with all vertices at sea-level
-  std::set<uint> sea_triangles;
+  std::set<uint> sea_triangles;  
 
   //! Indices of the set of vertices comprising the river network
-  std::set<uint> river_vertices;
+  std::set<uint> river_vertices; 
 
   //! Maximum height of terrain (used to scale to/from "normalised" height).
   float max_height;
@@ -107,7 +109,7 @@ class TriangleMeshTerrainPlanet : public TriangleMeshSubdividedIcosahedron, virt
 class TriangleMeshTerrainFlat : public TriangleMeshFlat, virtual public TriangleMeshTerrain
 {
  public:
-
+  
   //! Constructor.
   TriangleMeshTerrainFlat(const ParametersTerrain& parameters,Progress* progress);
 

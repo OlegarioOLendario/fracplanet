@@ -37,10 +37,10 @@ FracplanetMain::FracplanetMain(QWidget* parent,QApplication* app,const boost::pr
   ,progress_was_stalled(false)
 {
   setLayout(new QVBoxLayout);
-
+  
   tab=new QTabWidget();
   layout()->addWidget(tab);
-
+  
   control_terrain=new ControlTerrain(this,&parameters_terrain,&parameters_cloud);
   tab->addTab(control_terrain,"Create");
 
@@ -77,8 +77,8 @@ void FracplanetMain::progress_start(uint target,const std::string& info)
   progress_dialog->show();
 
   last_step=static_cast<uint>(-1);
-
-  QApplication::setOverrideCursor(Qt::WaitCursor);
+  
+  QApplication::setOverrideCursor(Qt::WaitCursor);  
 
   application->processEvents();
 }
@@ -92,14 +92,14 @@ void FracplanetMain::progress_stall(const std::string& reason)
 
 void FracplanetMain::progress_step(uint step)
 {
-  if (progress_was_stalled)
+  if (progress_was_stalled) 
     {
       progress_dialog->setLabelText(progress_info.c_str());
       progress_was_stalled=false;
       application->processEvents();
     }
 
-  // We might be called lots of times with the same step.
+  // We might be called lots of times with the same step.  
   // Don't know if Qt handles this efficiently so check for it ourselves.
   if (step!=last_step)
     {
@@ -136,7 +136,7 @@ void FracplanetMain::regenerate()   //! \todo Should be able to retain ground or
   meshes.clear();
   mesh_terrain.reset();
   mesh_cloud.reset();
-
+  
   //! \todo Recreating viewer every time seems like overkill, but Ubuntu (in VM) doesn't seem to like it otherwise.
   viewer.reset(new TriangleMeshViewer(this,&parameters_render,std::vector<const TriangleMesh*>(),_verbose));
 
@@ -157,43 +157,43 @@ void FracplanetMain::regenerate()   //! \todo Should be able to retain ground or
     {
     case ParametersObject::ObjectTypePlanet:
       {
-    std::auto_ptr<TriangleMeshTerrainPlanet> it(new TriangleMeshTerrainPlanet(parameters_terrain,this));
-    meshes.push_back(it.get());
-    mesh_terrain.reset(it.release());
-    break;
+	std::auto_ptr<TriangleMeshTerrainPlanet> it(new TriangleMeshTerrainPlanet(parameters_terrain,this));
+	meshes.push_back(it.get());
+	mesh_terrain.reset(it.release());
+	break;
       }
     default:
       {
-    std::auto_ptr<TriangleMeshTerrainFlat> it(new TriangleMeshTerrainFlat(parameters_terrain,this));
-    meshes.push_back(it.get());
-    mesh_terrain.reset(it.release());
-    break;
+	std::auto_ptr<TriangleMeshTerrainFlat> it(new TriangleMeshTerrainFlat(parameters_terrain,this));
+	meshes.push_back(it.get());
+	mesh_terrain.reset(it.release());
+	break;
       }
     }
 
   if (parameters_cloud.enabled)
     {
       switch (parameters_cloud.object_type)
-    {
-    case ParametersObject::ObjectTypePlanet:
-      {
-        std::auto_ptr<TriangleMeshCloudPlanet> it(new TriangleMeshCloudPlanet(parameters_cloud,this));
-        meshes.push_back(it.get());
-        mesh_cloud.reset(it.release());
-        break;
-      }
-    default:
-      {
-        std::auto_ptr<TriangleMeshCloudFlat> it(new TriangleMeshCloudFlat(parameters_cloud,this));
-        meshes.push_back(it.get());
-        mesh_cloud.reset(it.release());
-        break;
-      }
-    }
+	{
+	case ParametersObject::ObjectTypePlanet:
+	  {
+	    std::auto_ptr<TriangleMeshCloudPlanet> it(new TriangleMeshCloudPlanet(parameters_cloud,this));
+	    meshes.push_back(it.get());
+	    mesh_cloud.reset(it.release());
+	    break;
+	  }
+	default:
+	  {
+	    std::auto_ptr<TriangleMeshCloudFlat> it(new TriangleMeshCloudFlat(parameters_cloud,this));
+	    meshes.push_back(it.get());
+	    mesh_cloud.reset(it.release());
+	    break;
+	  }
+	}
     }
 
   const clock_t t1=clock();
-
+  
   progress_dialog.reset(0);
 
   if (_verbose)
@@ -212,9 +212,9 @@ void FracplanetMain::regenerate()   //! \todo Should be able to retain ground or
       std::cerr << "  Version  : " << glGetString(GL_VERSION) << std::endl;
 
       GLint max_elements_vertices;
-      GLint max_elements_indices;
+      GLint max_elements_indices; 
       glGetIntegerv(GL_MAX_ELEMENTS_VERTICES,&max_elements_vertices);
-      glGetIntegerv(GL_MAX_ELEMENTS_INDICES,&max_elements_indices);
+      glGetIntegerv(GL_MAX_ELEMENTS_INDICES,&max_elements_indices);      
       std::cerr << "  GL_MAX_ELEMENTS_VERTICES : " << max_elements_vertices << std::endl;
       std::cerr << "  GL_MAX_ELEMENTS_INDICES : " << max_elements_indices << std::endl;
 
@@ -242,232 +242,149 @@ void FracplanetMain::save_pov()
   else
     {
       viewer->hide();
-
+      
       const std::string filename_base(selected_filename.left(selected_filename.length()-4).toLocal8Bit());
       const std::string filename_pov=filename_base+".pov";
       const std::string filename_inc=filename_base+".inc";
-
+      
       const size_t last_separator=filename_inc.rfind('/');
       const std::string filename_inc_relative_to_pov=
-    "./"
-    +(
-      last_separator==std::string::npos
-      ?
-      filename_inc
-      :
-      filename_inc.substr(last_separator+1)
-      );
-
+	"./"
+	+(
+	  last_separator==std::string::npos
+	  ?
+	  filename_inc
+	  :
+	  filename_inc.substr(last_separator+1)
+	  );
+      
       std::ofstream out_pov(filename_pov.c_str());
       std::ofstream out_inc(filename_inc.c_str());
-
-      // Boilerplate for renderer
+      
+      // Boilerplate for renderer    
       out_pov << "camera {perspective location <0,1,-4.5> look_at <0,0,0> angle 45}\n";
       out_pov << "light_source {<100,100,-100> color rgb <1.0,1.0,1.0>}\n";
       out_pov << "#include \""+filename_inc_relative_to_pov+"\"\n";
-
+      
       mesh_terrain->write_povray(out_inc,parameters_save,parameters_terrain);
       if (mesh_cloud) mesh_cloud->write_povray(out_inc,parameters_save,parameters_cloud);
-
+      
       out_pov.close();
       out_inc.close();
-
+      
       const bool ok=(out_pov && out_inc);
+      
+      progress_dialog.reset(0);
+      
+      viewer->showNormal();
+      viewer->raise();
+      
+      if (!ok) 
+	{
+	  QMessageBox::critical(this,"Fracplanet","Errors ocurred while the files were being written.");
+	}
+    }
+}
+
+void FracplanetMain::save_blender()
+{
+  const QString selected_filename=QFileDialog::getSaveFileName
+    (
+     this,
+     "Blender",
+     ".",
+     "(*.py)"
+     );
+  if (selected_filename.isEmpty())
+    {
+      QMessageBox::critical(this,"Fracplanet","No file specified\nNothing saved");
+    }
+  else
+    {
+      viewer->hide();
+
+      const std::string filename(selected_filename.toLocal8Bit());
+      std::ofstream out(filename.c_str());
+
+      // Boilerplate
+      out << "#!BPY\n\n";
+      out << "import Blender\n";
+      out << "from Blender import NMesh, Material\n";
+      out << "\n";
+      out << "def v(mesh,x,y,z):\n";
+      out << "\tmesh.verts.append(NMesh.Vert(x,y,z))\n";
+      out << "\n";
+      out << "def f(mesh,material,v0,v1,v2,c0,c1,c2):\n";
+      out << "\tface=NMesh.Face()\n";
+      out << "\tface.transp=NMesh.FaceTranspModes.ALPHA\n";
+      out << "\tface.smooth=1\n";
+      out << "\tface.mat=material\n";
+      out << "\tface.v.append(mesh.verts[v0])\n";
+      out << "\tface.v.append(mesh.verts[v1])\n";
+      out << "\tface.v.append(mesh.verts[v2])\n";
+      out << "\tface.col.append(NMesh.Col(c0[0],c0[1],c0[2],c0[3]))\n";
+      out << "\tface.col.append(NMesh.Col(c1[0],c1[1],c1[2],c1[3]))\n";
+      out << "\tface.col.append(NMesh.Col(c2[0],c2[1],c2[2],c2[3]))\n";
+      out << "\tmesh.faces.append(face)\n";
+      out << "\n";
+
+      mesh_terrain->write_blender(out,parameters_save,parameters_terrain,"fracplanet");
+      if (mesh_cloud) mesh_cloud->write_blender(out,parameters_save,parameters_cloud,"fracplanet");
+
+      out << "Blender.Redraw()\n";
+
+      out.close();
 
       progress_dialog.reset(0);
 
       viewer->showNormal();
       viewer->raise();
 
-      if (!ok)
-    {
-      QMessageBox::critical(this,"Fracplanet","Errors ocurred while the files were being written.");
-    }
+      if (!out)
+	{
+	  QMessageBox::critical(this,"Fracplanet","Errors ocurred while the files were being written.");
+	}
     }
 }
 
-void FracplanetMain::save_blender()
-  {
-    const QString selected_filename=QFileDialog::getSaveFileName
-      (
-       this,
-       "Blender",
-       ".",
-       "(*.py)"
-       );
-    if (selected_filename.isEmpty())
-      {
-        QMessageBox::critical(this,"Fracplanet","No file specified\nNothing saved");
-      }
-    else
-      {
-        viewer->hide();
+void FracplanetMain::save_stl()
+{
+  const QString selected_filename=QFileDialog::getSaveFileName
+                                                              (
+                                                                this,
+                                                                "STL",
+                                                                ".",
+                                                                "(*.stl)"
+                                                              );
+  if (selected_filename.isEmpty())
+    {
+      QMessageBox::critical(this,"Fracplanet","No file specified\nNothing saved");
+    }
+  else
+    {
+      viewer->hide();
 
-        const std::string filename(selected_filename.toLocal8Bit());
-        std::ofstream out(filename.c_str());
+      const std::string filename(selected_filename.toLocal8Bit());
+      std::ofstream out(filename.c_str(), std::ios_base::binary);
 
-        // Boilerplate
-        out <<
-            "#+\n"
-            "# Instructions for loading this model into Blender:\n"
-            "#\n"
-            "# Open a new Blender document. Get rid of the default cube, and any other\n"
-            "# extraneous stuff you don't want. Bring up a Text Editor window.\n"
-            "# Click the Open button. Select this .py file to load it into\n"
-            "# a new text block. Execute the text block with ALT-P. The recreated model\n"
-            "# should now be visible in the 3D view. You can now delete the text.\n"
-            "# block containing this script from the document. Save the document.\n"
-            "#-\n"
-            "\n";
-        out <<
-            "import bpy\n"
-            "import bmesh\n"
-            "from mathutils import \\\n"
-            "    Color\n"
-            "\n"
-            "bpy.ops.object.add(type = \"MESH\")\n"
-            "the_mesh_obj = bpy.context.active_object\n"
-            "the_mesh_obj.name = \"fracplanet\"\n"
-            "the_mesh = the_mesh_obj.data\n"
-            "the_mesh.name = \"fracplanet\"\n"
-            "the_bmesh = bmesh.new()\n"
-            "color_layer = the_bmesh.loops.layers.color.new(\"Col\") # same as default used by Blender\n"
-            "alpha_layer = the_bmesh.loops.layers.color.new(\"Alpha\") # could be used in a node-based material\n"
-            "\n"
-            "nr_verts = 0\n"
-            "verts_index_base = 0\n"
-            "material_index_base = 0\n"
-            "\n"
-            "def v(x, y, z) :\n"
-            "  # adds a new vertex to the mesh.\n"
-            "    global nr_verts\n"
-            "    the_bmesh.verts.new((x, y, z))\n"
-            "    nr_verts += 1\n"
-            "#end v\n"
-            "\n";
-        out <<
-            "def vend() :\n"
-            "  # marks end of emission of vertices, and start of emission of faces.\n"
-            "    the_bmesh.verts.index_update()\n"
-            "    the_bmesh.verts.ensure_lookup_table()\n"
-            "#end vend\n"
-            "\n";
-        out <<
-            "def f(material, v0, v1, v2, c0, c1, c2) :\n"
-            "  # adds a new face and associated vertex colours to the mesh.\n"
-            "    v0 += verts_index_base\n"
-            "    v1 += verts_index_base\n"
-            "    v2 += verts_index_base\n"
-            "    tface = the_bmesh.faces.new((the_bmesh.verts[v0], the_bmesh.verts[v1], the_bmesh.verts[v2]))\n"
-            "    tface.smooth = True\n"
-            "    tface.material_index = material + material_index_base\n"
-            "    colors = {v0 : Color(tuple(c / 255 for c in c0[:3])), v1 : Color(tuple(c / 255 for c in c1[:3])), v2 : Color(tuple(c / 255 for c in c2[:3]))}\n"
-            "    alphas = {v0 : Color((c0[3] / 255,) * 3), v1 : Color((c1[3] / 255,) * 3), v2 : Color((c2[3],) * 3)}\n"
-            "    for l in tface.loops :\n"
-            "        l[color_layer] = colors[l.vert.index]\n"
-            "        l[alpha_layer] = alphas[l.vert.index]\n"
-            "    #end for\n"
-            "#end f\n"
-            "\n";
-        out <<
-            "def mesh_piece_end() :\n"
-            "  # marks end of a discontiguous piece of the mesh.\n"
-            "    global nr_verts, verts_index_base\n"
-            "    verts_index_base += nr_verts\n"
-            "    nr_verts = 0\n"
-            "#end mesh_piece_end\n"
-            "\n";
-        out <<
-            "material = bpy.data.materials.new(\"fracplanet_land\") # land\n"
-            "material.diffuse_color = (0.0, 1.0, 0.0)\n"
-            "material.use_vertex_color_paint = True\n"
-            "material.use_transparent_shadows = True # needed if I have clouds\n"
-            "bpy.ops.object.material_slot_add()\n"
-            "the_mesh_obj.material_slots[-1].material = material\n"
-            "material = bpy.data.materials.new(\"fracplanet_sea\") # sea\n"
-            "material.diffuse_color = (0.0, 0.0, 1.0)\n"
-            "material.use_vertex_color_paint = True\n"
-            "material.use_transparent_shadows = True # needed if I have clouds\n"
-            "bpy.ops.object.material_slot_add()\n"
-            "the_mesh_obj.material_slots[-1].material = material\n";
-        if (mesh_cloud != NULL)
-          {
-            out <<
-                "material = bpy.data.materials.new(\"fracplanet_clouds\") # clouds\n"
-                "material.diffuse_color = (1.0, 1.0, 1.0)\n"
-                "material.use_vertex_color_paint = True\n"
-                "material.use_transparency = True\n"
-                "material.transparency_method = \"Z_TRANSPARENCY\"\n"
-                "material.alpha = 0.3 # good enough to begin with\n";
-            if (parameters_save.blender_cycles_materials)
-              {
-                out <<
-                    "material.use_nodes = True\n"
-                    "material_tree = material.node_tree\n"
-                    "for node in material_tree.nodes :\n"
-                    "  # clear out default nodes\n"
-                    "    material_tree.nodes.remove(node)\n"
-                    "#end for\n"
-                    "layer_color = material_tree.nodes.new(\"ShaderNodeAttribute\")\n"
-                    "layer_color.attribute_name = \"Col\"\n"
-                    "layer_color.location = (-200, 0)\n"
-                    "layer_alpha = material_tree.nodes.new(\"ShaderNodeAttribute\")\n"
-                    "layer_alpha.attribute_name = \"Alpha\"\n"
-                    "layer_alpha.location = (-200, 150)\n"
-                    "transp_shader = material_tree.nodes.new(\"ShaderNodeBsdfTransparent\")\n"
-                    "transp_shader.location = (0, 200)\n"
-                    "color_shader = material_tree.nodes.new(\"ShaderNodeBsdfDiffuse\")\n"
-                    "color_shader.location = (0, 0)\n"
-                    "material_tree.links.new(layer_color.outputs[0], color_shader.inputs[0])\n"
-                    "mix_shader = material_tree.nodes.new(\"ShaderNodeMixShader\")\n"
-                    "mix_shader.location = (200, 50)\n"
-                    "material_tree.links.new(layer_alpha.outputs[0], mix_shader.inputs[0])\n"
-                    "material_tree.links.new(transp_shader.outputs[0], mix_shader.inputs[1])\n"
-                    "material_tree.links.new(color_shader.outputs[0], mix_shader.inputs[2])\n"
-                    "material_tree.links.new(layer_color.outputs[0], color_shader.inputs[0])\n"
-                    "material_output = material_tree.nodes.new(\"ShaderNodeOutputMaterial\")\n"
-                    "material_output.location = (400, 50)\n"
-                    "material_tree.links.new(mix_shader.outputs[0], material_output.inputs[0])\n"
-                    "for node in material_tree.nodes :\n"
-                    "    node.select = False\n"
-                    "#end for\n";
-              } /*if*/
-            out <<
-                "bpy.ops.object.material_slot_add()\n"
-                "the_mesh_obj.material_slots[-1].material = material\n";
-          } /*if*/
-        out <<
-            "\n";
 
-        mesh_terrain->write_blender(out,parameters_save,parameters_terrain,"fracplanet");
-        if (mesh_cloud)
-          {
-            out <<
-                "\n"
-                "material_index_base = 2\n"
-                "\n";
-            mesh_cloud->write_blender(out,parameters_save,parameters_cloud,"fracplanet");
-          } /*if*/
 
-        out <<
-            "the_bmesh.normal_update()\n"
-            "the_bmesh.to_mesh(the_mesh)\n"
-            "the_mesh.update()\n"
-            "bpy.context.scene.update()\n";
+      mesh_terrain->write_stl(out,parameters_save,parameters_terrain,"fracplanet");
 
-        out.close();
 
-        progress_dialog.reset(0);
+      out.close();
 
-        viewer->showNormal();
-        viewer->raise();
+      progress_dialog.reset(0);
 
-        if (!out)
-      {
-        QMessageBox::critical(this,"Fracplanet","Errors ocurred while the files were being written.");
-      }
-      }
-  } /*FracplanetMain::save_blender*/
+      viewer->showNormal();
+      viewer->raise();
+
+      if (!out)
+	{
+	  QMessageBox::critical(this,"Fracplanet","Errors ocurred while the files were being written.");
+	}
+    }
+}
 
 void FracplanetMain::save_texture()
 {
@@ -498,53 +415,52 @@ void FracplanetMain::save_texture()
 
       bool ok=true;
       {
-    boost::scoped_ptr<Image<ByteRGBA> > terrain_image(new Image<ByteRGBA>(width,height));
-    terrain_image->fill(ByteRGBA(0,0,0,0));
-    boost::scoped_ptr<Image<ushort> > terrain_dem(new Image<ushort>(width,height));
-    terrain_dem->fill(0);
+          boost::scoped_ptr<Image<ByteRGBA> > terrain_image(new Image<ByteRGBA>(width,height));
+          terrain_image->fill(ByteRGBA(0,0,0,0));
+          boost::scoped_ptr<Image<ushort> > terrain_dem(new Image<ushort>(width,height));
+          terrain_dem->fill(0);
 
-    boost::scoped_ptr<Image<ByteRGBA> > terrain_normals(new Image<ByteRGBA>(width,height));
-    terrain_normals->fill(ByteRGBA(128,128,128,0));
+          boost::scoped_ptr<Image<ByteRGBA> > terrain_normals(new Image<ByteRGBA>(width,height));
+          terrain_normals->fill(ByteRGBA(128,128,128,0));
 
-    mesh_terrain->render_texture
-      (
-       *terrain_image,
-       terrain_dem.get(),
-       terrain_normals.get(),
-       parameters_save.texture_shaded,
-       parameters_render.ambient,
-       parameters_render.illumination_direction()
-       );
+          mesh_terrain->render_texture(
+                                        *terrain_image,
+                                        terrain_dem.get(),
+                                        terrain_normals.get(),
+                                        parameters_save.texture_shaded,
+                                        parameters_render.ambient,
+                                        parameters_render.illumination_direction()
+                                      );
 
-    if (!terrain_image->write_ppmfile(filename,this)) ok=false;
+          if (!terrain_image->write_ppmfile(filename,this)) ok=false;
 
-    if (ok && terrain_dem)
-      {
-        if (!terrain_dem->write_pgmfile(filename_base+"_dem.pgm",this)) ok=false;
-      }
+          if (ok && terrain_dem)
+          {
+          if (!terrain_dem->write_pgmfile(filename_base+"_dem.pgm",this)) ok=false;
+          }
 
-    if (ok && terrain_normals)
-      {
-        if (!terrain_normals->write_ppmfile(filename_base+"_norm.ppm",this)) ok=false;
-      }
-      }
+          if (ok && terrain_normals)
+          {
+          if (!terrain_normals->write_ppmfile(filename_base+"_norm.ppm",this)) ok=false;
+          }
+          }
 
-      if (ok && mesh_cloud)
-    {
-      QMessageBox::warning(this,"Fracplanet","Texture save of cloud mesh not currently supported");
-      //boost::scoped_ptr<Image<uchar> > cloud_image(new Image<uchar>(width,height));
-      //mesh_cloud->render_texture(*cloud_image);
-      //if (!cloud_image->write_pgmfile(filename_base+"_cloud.png",this)) ok=false;
-    }
+          if (ok && mesh_cloud)
+          {
+          QMessageBox::warning(this,"Fracplanet","Texture save of cloud mesh not currently supported");
+          //boost::scoped_ptr<Image<uchar> > cloud_image(new Image<uchar>(width,height));
+          //mesh_cloud->render_texture(*cloud_image);
+          //if (!cloud_image->write_pgmfile(filename_base+"_cloud.png",this)) ok=false;
+          }
 
-      progress_dialog.reset(0);
+          progress_dialog.reset(0);
 
-      viewer->showNormal();
-      viewer->raise();
+          viewer->showNormal();
+          viewer->raise();
 
-      if (!ok)
-    {
-      QMessageBox::critical(this,"Fracplanet","Errors ocurred while the files were being written.");
-    }
-    }
+          if (!ok)
+          {
+          QMessageBox::critical(this,"Fracplanet","Errors ocurred while the files were being written.");
+          }
+          }
 }
